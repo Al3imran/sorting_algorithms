@@ -1,60 +1,80 @@
 #include "sort.h"
 
 /**
- * heap_sort - sorts an array following the Heap sort algorithm
- * @array: array of ints to sort
- * @size: size of the array to sort
+ * swap - swaps position of values in array
+ * @array: array to be changed
+ * @first: first index
+ * @second: second index
+ *
+ * Return: nothing
  */
-void heap_sort(int *array, size_t size)
+void swap(int **array, int first, int second)
 {
-	int i;
-	int tmp;
+	int holder;
 
-	if (size < 2)
-		return;
+	holder = (*array)[first];
+	(*array)[first] = (*array)[second];
+	(*array)[second] = holder;
+}
 
-	for (i = size / 2 - 1; i >= 0; i--)
-		heapify(array, size, (size_t)i, size);
+/**
+ * build_Max_Heap - builds a heap from an array
+ * @array: array to be changed to heap array
+ * @end_index: end index as array is partitioned
+ * @start_index: starting point index as array is sorted
+ * @a_size: array size unchanged
+ *
+ * Return: nothing
+ */
+void build_Max_Heap(int *array, int end_index, int start_index, int a_size)
+{
+	int largest, left, right;
 
-	for (i = size - 1; i >= 0; i--)
+	largest = start_index;
+	left = (start_index * 2) + 1;
+	right = (start_index * 2) + 2;
+
+	if (left < end_index && array[left] > array[largest])
+		largest = left;
+
+	if (right < end_index && array[right] > array[largest])
+		largest = right;
+
+	if (largest != start_index)
 	{
-		tmp = array[i];
-		array[i] = array[0];
-		array[0] = tmp;
-		if (i != 0)
-			print_array(array, size);
-		heapify(array, (size_t)i, 0, size);
+		swap(&array, start_index, largest);
+		print_array(array, a_size);
+		build_Max_Heap(array, end_index, largest, a_size);
 	}
 }
 
 /**
- * heapify - turns an array in a heap tree
- * @array: array to turn into heap
- * @s: size of the subtree
- * @root: index of the subtree in the heap
- * @size: size of the whole array
+ * heap_sort - sorts an array using the Heap sort algorithm
+ * @array: array to be sorted
+ * @size: size of the array
+ *
+ * Return: nothing
  */
-void heapify(int *array, size_t s, size_t root, size_t size)
+void heap_sort(int *array, size_t size)
 {
-	size_t max, left, right;
-	int tmp;
+	int start_index, i;
 
-	max = root;
-	left = (root * 2) + 1;
-	right = (root * 2) + 2;
+	if (!array || size < 2)
+		return;
 
-	if (left < s && array[left] > array[max])
-		max = left;
+	start_index = ((int)size - 1) / 2;
 
-	if (right < s && array[right] > array[max])
-		max = right;
-
-	if (max != root)
+	/*Build max heap*/
+	for (i = start_index; i >= 0; i--)
 	{
-		tmp = array[root];
-		array[root] = array[max];
-		array[max] = tmp;
+		build_Max_Heap(array, size, i, size);
+	}
+
+	/*Destroy max heap and print sorted array*/
+	for (i = size - 1; i > 0; i--)
+	{
+		swap(&array, 0, i);
 		print_array(array, size);
-		heapify(array, s, max, size);
+		build_Max_Heap(array, i, 0, size);
 	}
 }
